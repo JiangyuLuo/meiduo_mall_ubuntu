@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'apps.users',
+    # 如果想要使用apps.users.apps.UsersConfig, 需要改users.py文件中的name为apps.users
 ]
 
 MIDDLEWARE = [
