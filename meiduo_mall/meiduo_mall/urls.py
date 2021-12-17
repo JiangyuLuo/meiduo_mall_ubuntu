@@ -17,13 +17,15 @@ from django.contrib import admin
 from django.urls import path, include
 
 # 注册转换器
-from utils.converters import UsernameConverter, MobileConverter
+from utils.converters import UsernameConverter, MobileConverter, UUIDConverter
 from django.urls import register_converter
 
 register_converter(UsernameConverter, 'username')
 register_converter(MobileConverter, 'mobile')
+# register_converter(UUIDConverter, 'uuid')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.users.urls'))
+    path('', include('apps.users.urls')),
+    path('', include('apps.verifications.urls'))
 ]

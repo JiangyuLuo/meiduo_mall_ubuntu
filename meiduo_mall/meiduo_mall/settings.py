@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'apps.users',
     # 如果想要使用apps.users.apps.UsersConfig, 需要改users.py文件中的name为apps.users
+    'apps.verifications',
 
     # CORS
     'corsheaders',
@@ -143,6 +144,14 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    # 用于保存图片验证码
+    "code": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
