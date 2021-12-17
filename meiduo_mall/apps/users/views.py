@@ -272,6 +272,7 @@ class LogoutView(View):
         response.delete_cookie('username')
         return response
 
+
 # 用户中心, 也必须是登录用户
 '''
 LoginRequiredMixin 未登录的用户 会返回重定向. 重定向并不是JSON数据
@@ -315,4 +316,156 @@ class CenterView(LoginRequiredJsonMixin, View):
             'code': 0,
             'errmsg': 'OK',
             'info_data': info_data
+        })
+
+
+'''
+需求:     1. 保存邮箱地址 2. 发送一份激活邮件   3. 用户激活邮件
+前端:     
+    当用户输入邮箱之后, 点击保存, 这个时候会发送ajax请求
+
+后端: 
+
+    请求:
+    业务逻辑:
+    响应: 
+
+    路由      PUT
+    步骤: 
+        1. 接受请求
+        2. 获取数据
+        3. 保存邮箱地址
+        4. 发送一份激活邮箱
+        5. 返回响应
+
+需求(要实现什么功能)  ==> 思路(请求, 业务逻辑, 响应)  ==> 步骤  ==> 代码实现
+'''
+
+
+class EmailView(LoginRequiredJsonMixin, View):
+
+    def put(self, request):
+        # 1. 接受请求
+        # put post == body
+        data = json.loads(request.body.decode())
+        # 2. 获取数据
+        email = data.get('email')
+        # 验证数据
+        # 正则
+
+        # 3. 保存邮箱地址
+        user = request.user
+        # user/ request.user 就是登录用户的实例对象
+        user.email = email
+        user.save()
+
+        # 4. 发送一份激活邮箱
+        from django.core.mail import send_mail
+        # subject: 主题
+        # message: 信息内容
+        # from_email: 发件人
+        # recipient_list: 收件人列表
+        subject = '主题'
+        message = '稀土的招聘方式https://xitu.juejin.cn/jobs'
+        from_email = 'liqipython@163.com'
+        recipient_list = ['943215317@qq.com', ]
+
+        # 4.1 对a标签的连接数据进行加密处理
+        # user_id=1
+        from utils.emailToken import generic_email_verify_token
+        token = generic_email_verify_token(request.user.id)
+
+        # 4.2 阻止我们的激活邮件
+        # 如果邮件的内容是html这个时候使用html_message
+        verify_url = f"http://www.geekshub.com:8080/success_verify_email.html?token={token}"
+        html_message = '<p>尊敬的用户您好！</p>' \
+                       '<p>感谢您使用美多商城。</p>' \
+                       '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
+                       '<p><a href="%s">%s</a></p>' % (email, verify_url, verify_url)
+
+        # send_mail(subject=subject, message=message, from_email=from_email, recipient_list=recipient_list, html_message=html_message)
+        # 换成celery方法
+        from celery_tasks.email.tasks import celery_send_email
+        celery_send_email.delay(subject=subject, message=message, from_email=from_email, recipient_list=recipient_list,
+                                html_message=html_message)
+        # 5. 返回响应
+        return JsonResponse({
+            'code': 0,
+            'errmsg': 'ok'
+        })
+
+
+'''
+    1. 设置邮件服务器
+
+    2. 设置邮件发送的配置信息(写在settings.py中)
+        # 让django的哪个类发送邮件
+        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+        # EMAIL_USE_TLS = False   #是否使用TLS安全传输协议(用于在两个通信应用程序之间提供保密性和数据完整性。)
+        # EMAIL_USE_SSL = True    #是否使用SSL加密，qq企业邮箱要求使用
+        EMAIL_HOST = 'smtp.163.com'   #发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
+        EMAIL_PORT = 25     #发件箱的SMTP服务器端口
+        EMAIL_HOST_USER = 'liqipython@163.com'    #发送邮件的邮箱地址
+        EMAIL_HOST_PASSWORD = 'IJJMDXGHZPZEQBES'         #发送邮件的邮箱密码(这里使用的是授权码)
+        # EMAIL_FROM = '罗大富<liqipython@163.com>'
+
+    3. 调用 send_mail方法
+'''
+
+'''
+需求: 
+    激活用户的邮件
+前端: 
+    用户会点击那个激活连接. 那个激活连接携带了token
+后端: 
+    请求:     接收请求, 获取参数, 验证参数
+    业务逻辑:   user_id, 根据用户id查询数据, 修改数据
+    响应:     返回响应JSON
+
+    路由:     PUT     emails/verification/ 说明token并没有在body里
+    步骤: 
+        1. 接收请求
+        2. 获取参数
+        3. 验证参数
+        4. 获取user_id
+        5. 根据用户id查询数据
+        6. 修改数据
+        7. 返回响应
+
+'''
+
+
+class EmailVerifyView(View):
+
+    def put(self, request):
+        # 1. 接收请求
+        params = request.GET
+        print(params)
+        # 2. 获取参数
+        token = params.get('token')
+        # 3. 验证参数
+        if token is None:
+            return JsonResponse({
+                'code': 400,
+                'errmsg': '参数缺失'
+            })
+        # 4. 获取user_id
+        from utils.emailToken import check_verify_token
+        user_id = check_verify_token(token)
+        print('USER_ID: ', user_id)
+        if user_id is None:
+            return JsonResponse({
+                'code': 400,
+                'errmsg': '参数错误'
+            })
+        # 5. 根据用户id查询数据
+        user = User.objects.get(id=user_id)
+        print('USER: ', user)
+        # 6. 修改数据
+        user.email_active = True
+        user.save()
+        # 7. 返回响应
+        return JsonResponse({
+            'code': 0,
+            'errmsg': 'ok'
         })
