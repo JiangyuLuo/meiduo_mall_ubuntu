@@ -38,3 +38,22 @@ class UsernameCountView(View):
             'errmsg': 'OK',
             'count': count
         })
+
+# 检查手机号是否存在
+class MobileCountView(View):
+    def get(self, request, mobile):
+        '''
+        判断手机号是否重复注册
+
+        :param request: 请求对象
+        :param mobile: 手机号
+        :return: JSON
+        '''
+        # 根据用户名查询数据库
+        count = User.objects.filter(mobile=mobile).count()
+        # 返回响应
+        return JsonResponse({
+            'code': 0,
+            'errmsg': 'OK',
+            'count': count
+        })
