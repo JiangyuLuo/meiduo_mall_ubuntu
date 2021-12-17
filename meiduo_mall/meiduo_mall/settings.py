@@ -24,7 +24,10 @@ SECRET_KEY = '$i-eo2oiiaus9g5fny)*zy9ok@-a+gslr$w4w!%i3_&mv()-_%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'www.geekshub.com'
+]
 
 # Application definition
 
