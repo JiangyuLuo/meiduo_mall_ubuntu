@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.users.views import UsernameCountView, MobileCountView, RegisterView, LoginView, LogoutView
+from apps.users.views import UsernameCountView, MobileCountView, RegisterView, LoginView, LogoutView, CenterView
 
 urlpatterns = [
     # 用户名校验
@@ -12,5 +12,7 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     # 退出
     path('logout/', LogoutView.as_view()),
+    # 用户基本信息
+    path('info/', CenterView.as_view()),
 
 ]
