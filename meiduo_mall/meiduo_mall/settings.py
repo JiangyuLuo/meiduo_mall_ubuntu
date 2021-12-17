@@ -41,13 +41,17 @@ INSTALLED_APPS = [
 
     'apps.users',
     # 如果想要使用apps.users.apps.UsersConfig, 需要改users.py文件中的name为apps.users
+
+    # CORS
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -125,14 +129,14 @@ STATIC_URL = '/static/'
 
 # 配置redis数据库
 CACHES = {
-    "default": { # 预留
+    "default": {  # 预留
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
-    "session": { # 用于保存session
+    "session": {  # 用于保存session
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
@@ -142,7 +146,6 @@ CACHES = {
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
-
 
 # 日志
 LOGGING = {
@@ -186,3 +189,16 @@ LOGGING = {
     }
 }
 
+# =====================通过提供一个值给AUTH_USER_MODEL设置, 指向自定义的模型, Django允许你覆盖默认的USER模型
+# 这个电视路径包含Django应用的名称(必须位于你的INSTALLED_APPS中), 和要作USER模型的Django模型的名称
+# 指定本项目用户模型类
+AUTH_USER_MODEL = 'users.User'
+
+# CORS
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://www.geekshub.com:8080',
+    'http://www.geekshub.com:8000'
+)
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
