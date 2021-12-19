@@ -1,5 +1,6 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # elery不支持在Windows环境下运行任务, 需要借助eventlet来完成
+# 在Ubuntu环境下也需要借助eventlet
 # pip install eventlet
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
