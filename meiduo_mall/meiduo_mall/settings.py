@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.users',
     # 如果想要使用apps.users.apps.UsersConfig, 需要改users.py文件中的name为apps.users
     'apps.verifications',
+    'apps.areas',
 
     # CORS
     'corsheaders',
